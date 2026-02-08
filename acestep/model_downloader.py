@@ -234,6 +234,8 @@ def check_model_exists(model_name: str, checkpoints_dir: Optional[Path] = None) 
     Returns:
         True if the model exists, False otherwise.
     """
+    if not model_name:
+        return False
     if checkpoints_dir is None:
         checkpoints_dir = get_checkpoints_dir()
     

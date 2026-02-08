@@ -375,6 +375,11 @@ class AceStepHandler:
             (status_message, enable_generate_button)
         """
         try:
+            if not config_path:
+                config_path = "acestep-v15-turbo"
+                logger.warning(
+                    "[initialize_service] config_path not set; defaulting to 'acestep-v15-turbo'."
+                )
             if device == "auto":
                 if torch.cuda.is_available():
                     device = "cuda"
