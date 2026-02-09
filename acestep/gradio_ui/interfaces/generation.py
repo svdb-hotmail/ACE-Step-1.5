@@ -2,7 +2,6 @@
 Gradio UI Generation Section Module
 Contains generation section component definitions
 """
-import sys
 import gradio as gr
 from acestep.constants import (
     VALID_LANGUAGES,
@@ -108,7 +107,7 @@ def create_generation_section(dit_handler, llm_handler, init_params=None, langua
                 # Set device value from init_params if pre-initialized
                 device_value = init_params.get('device', 'auto') if service_pre_initialized else 'auto'
                 device = gr.Dropdown(
-                    choices=["auto", "cuda", "mps", "xpu", "cpu"],
+                    choices=["auto", "cuda", "xpu", "cpu"],
                     value=device_value,
                     label=t("service.device_label"),
                     info=t("service.device_info")
@@ -130,7 +129,7 @@ def create_generation_section(dit_handler, llm_handler, init_params=None, langua
                 # Set backend value from init_params if pre-initialized
                 backend_value = init_params.get('backend', 'vllm') if service_pre_initialized else 'vllm'
                 backend_dropdown = gr.Dropdown(
-                    choices=["vllm", "pt", "mlx"],
+                    choices=["vllm", "pt"],
                     value=backend_value,
                     label=t("service.backend_label"),
                     info=t("service.backend_info")
@@ -146,7 +145,7 @@ def create_generation_section(dit_handler, llm_handler, init_params=None, langua
                     info=t("service.init_llm_info"),
                 )
                 # Auto-detect flash attention availability
-                flash_attn_available = dit_handler.is_flash_attention_available(device_value)
+                flash_attn_available = dit_handler.is_flash_attention_available()
                 # Set use_flash_attention value from init_params if pre-initialized
                 use_flash_attention_value = init_params.get('use_flash_attention', flash_attn_available) if service_pre_initialized else flash_attn_available
                 use_flash_attention_checkbox = gr.Checkbox(
@@ -176,10 +175,8 @@ def create_generation_section(dit_handler, llm_handler, init_params=None, langua
                     value=compile_model_value,
                     info=t("service.compile_model_info")
                 )
-                # Set quantization value from init_params if pre-initialized.
-                # Default to False on macOS to avoid torchao incompatibilities.
-                default_quantization = False if sys.platform == "darwin" else True
-                quantization_value = init_params.get('quantization', default_quantization) if service_pre_initialized else default_quantization
+                # Set quantization value from init_params if pre-initialized (default True for int8_weight_only)
+                quantization_value = init_params.get('quantization', True) if service_pre_initialized else True
                 quantization_checkbox = gr.Checkbox(
                     label=t("service.quantization_label"),
                     value=quantization_value,
@@ -297,10 +294,17 @@ def create_generation_section(dit_handler, llm_handler, init_params=None, langua
                                 convert_src_to_codes_btn = gr.Button(
                                     t("generation.convert_codes_btn"),
                                     variant="secondary",
-                                    size="sm"
+                                    interactive=True,
                                 )
                         
                     # Audio Codes for text2music - single input for transcription or cover task
+                # Audio Normalization Settings
+                with gr.Row():
+                    enable_normalization = gr.Checkbox(label=t("gen.enable_normalization"), value=True, info=t("gen.enable_normalization_info"))
+                    normalization_db = gr.Slider(label=t("gen.normalization_db"), minimum=-10.0, maximum=0.0, step=0.1, value=-1.0, info=t("gen.normalization_db_info"))
+
+                # Advanced DiT Parameters
+                with gr.Accordion(t("generation.advanced_dit_params"), open=False):
                     with gr.Accordion(t("generation.lm_codes_hints"), open=False, visible=True) as text2music_audio_codes_group:
                         with gr.Row(equal_height=True):
                             text2music_audio_code_string = gr.Textbox(
@@ -522,7 +526,7 @@ def create_generation_section(dit_handler, llm_handler, init_params=None, langua
                         info=t("generation.random_seed_info")
                     )
                 audio_format = gr.Dropdown(
-                    choices=["mp3", "flac"],
+                    choices=[("MP3", "mp3"), ("FLAC", "flac"), ("WAV (16-bit)", "wav"), ("WAV (32-bit Float)", "wav32")],
                     value="mp3",
                     label=t("generation.audio_format_label"),
                     info=t("generation.audio_format_info"),
@@ -821,4 +825,8 @@ def create_generation_section(dit_handler, llm_handler, init_params=None, langua
         "gpu_config": gpu_config,
         "max_duration": max_duration,
         "max_batch_size": max_batch_size,
+        "enable_normalization": enable_normalization,
+        "normalization_db": normalization_db,
     }
+
+
