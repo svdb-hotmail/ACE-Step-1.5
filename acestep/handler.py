@@ -109,6 +109,8 @@ class AceStepHandler(LoraManagerMixin, ProgressMixin):
         self.use_lora = False
         self.lora_scale = 1.0  # LoRA influence scale (0-1)
         self._base_decoder = None  # Backup of original decoder
+        self._lora_adapter_registry = {}  # adapter_name -> explicit scaling targets
+        self._lora_active_adapter = None
     
     def get_available_checkpoints(self) -> str:
         """Return project root directory path"""
