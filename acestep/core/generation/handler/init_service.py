@@ -376,7 +376,7 @@ class InitServiceMixin:
             self._recursive_to_device(model, self.device, self.dtype)
 
         if model_name == "model" and hasattr(self, "silence_latent"):
-             self.silence_latent = self.silence_latent.to(self.device).to(self.dtype)
+            self.silence_latent = self.silence_latent.to(self.device).to(self.dtype)
 
         load_time = time.time() - start_time
         self.current_offload_cost += load_time
