@@ -886,12 +886,12 @@ def export_lora(
         latest = checkpoints[-1]
         source_path = os.path.join(checkpoint_dir, latest)
     else:
+        return f"❌ No trained model found in {lora_output_dir}"
+    
     # Resolve and validate the export destination within the safe root
     safe_export_path = _safe_join(SAFE_TRAINING_ROOT, export_path)
     if safe_export_path is None:
         return "❌ Invalid export path"
-    
-        return f"❌ No trained model found in {lora_output_dir}"
     
     try:
         import shutil

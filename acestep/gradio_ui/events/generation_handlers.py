@@ -484,6 +484,8 @@ def init_service_wrapper(dit_handler, llm_handler, checkpoint, config_path, devi
             "Falling back to CPU for LM initialization."
         )
         llm_handler.device = "cpu"
+    else:
+        llm_handler.device = device
     
     # Warn (but respect) if the selected LM model exceeds the tier's recommendation
     if init_llm and lm_model_path and gpu_config.available_lm_models:
