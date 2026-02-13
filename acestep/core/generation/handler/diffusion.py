@@ -124,6 +124,7 @@ class DiffusionMixin:
             audio_cover_strength=audio_cover_strength,
             encoder_hidden_states_non_cover_np=enc_nc_np,
             context_latents_non_cover_np=ctx_nc_np,
+            compile_model=getattr(self, "mlx_dit_compiled", False),
         )
 
         # Convert result latents back to PyTorch tensor on the correct device
